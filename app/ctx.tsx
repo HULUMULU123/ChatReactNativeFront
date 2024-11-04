@@ -1,8 +1,9 @@
 import React from "react";
 import { useStorageState } from "./useStorageState";
+import api from "@/api/api";
 
 const AuthContext = React.createContext<{
-  signIn: () => void;
+  signIn: (username: []) => void;
   signOut: () => void;
   session?: string | null;
   isLoading: boolean;
@@ -13,6 +14,10 @@ const AuthContext = React.createContext<{
   isLoading: false,
 });
 
+interface UserAuth {
+  username: string;
+  token: string;
+}
 // This hook can be used to access the user info.
 export function useSession() {
   const value = React.useContext(AuthContext);
@@ -26,15 +31,17 @@ export function useSession() {
 }
 
 export function SessionProvider(props: React.PropsWithChildren) {
-  const [[isLoading, session], setSession] = useStorageState("session");
+  const [[isLoading, session], setSession] = useStorageState(
+    JSON.stringify(null)
+  );
   return (
     <AuthContext.Provider
       value={{
-        signIn: () => {
+        signIn: (username) => {
           // Add your login logic here
           // For example purposes, we'll just set a fake session in storage
           //This likely would be a JWT token or other session data
-          setSession("John Doe");
+          setSession(JSON.stringify(username));
         },
         signOut: () => {
           setSession(null);
