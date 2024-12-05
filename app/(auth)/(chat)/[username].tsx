@@ -82,6 +82,8 @@ export default function ModalScreen() {
   const chat = useGlobal((state) => state.chat);
   const isLoading = useGlobal((state) => state.isLoadingChat);
 
+  const getAllChats = useGlobal((state) => state.getAllChats);
+
   const [messages, setMessages] = useState([]);
   // console.log(chat.data, "chatik");
   const { signOut, session } = useSession();
@@ -128,7 +130,7 @@ export default function ModalScreen() {
   }, [commingMessage]);
 
   useEffect(() => {
-    scrollViewRef.current?.scrollToEnd({ animated: true });
+    scrollViewRef.current?.scrollToEnd({ animated: false });
     console.log(messages);
   }, [messages]);
   const sendMessage = () => {
@@ -142,6 +144,7 @@ export default function ModalScreen() {
     setMessage("");
     // messages.push(newMessage);
     setMessages((prevMessages) => [...prevMessages, newMessage]);
+    getAllChats();
   };
 
   return (

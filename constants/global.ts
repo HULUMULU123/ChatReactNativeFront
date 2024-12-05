@@ -23,6 +23,8 @@ type GlobalState = {
   chat: any;
   isLoadingChat: boolean;
   getChat: (user1: string, user2: string) => void;
+  getAllChats: () => void;
+  allChats: any;
 };
 
 const useGlobal = create<GlobalState>((set, get) => ({
@@ -36,6 +38,11 @@ const useGlobal = create<GlobalState>((set, get) => ({
     );
     socket.onopen = () => {
       console.log("soket onopen");
+      socket.send(
+        JSON.stringify({
+          source: "index",
+        })
+      );
     };
     socket.onmessage = (event) => {
       const parsed = JSON.parse(event.data);
@@ -54,9 +61,18 @@ const useGlobal = create<GlobalState>((set, get) => ({
         }));
       }
       if (parsed.source == "chat_message") {
-        console.log("got it");
         set((state) => ({
           message: parsed.data,
+        }));
+        socket.send(
+          JSON.stringify({
+            source: "index",
+          })
+        );
+      }
+      if (parsed.source == "get_all_chats") {
+        set((state) => ({
+          allChats: parsed.data,
         }));
       }
       // const responses = {
@@ -150,6 +166,15 @@ const useGlobal = create<GlobalState>((set, get) => ({
         })
       );
     }
+  },
+  allChats: null,
+  getAllChats: () => {
+    const socket = get().socket;
+    socket.send(
+      JSON.stringify({
+        source: "index",
+      })
+    );
   },
 }));
 
