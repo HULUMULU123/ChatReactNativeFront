@@ -27,24 +27,24 @@ function TimeAgo({ timestamp }) {
 
     // Возвращаем строку, основанную на разнице во времени
     if (diffInSec < 60) {
-      return diffInSec <= 1 ? "Момент назад" : `${diffInSec} секунд назад`;
+      return diffInSec <= 1 ? "Moment ago" : `${diffInSec} seconds ago`;
     } else if (diffInMin < 60) {
-      return diffInMin === 1 ? "1 минуту назад" : `${diffInMin} минут назад`;
+      return diffInMin === 1 ? "1 minute ago" : `${diffInMin} minutes ago`;
     } else if (diffInHour < 24) {
-      return diffInHour === 1 ? "1 час назад" : `${diffInHour} часов назад`;
+      return diffInHour === 1 ? "1 hour ago" : `${diffInHour} hours ago`;
     } else if (diffInDay < 30) {
-      return diffInDay === 1 ? "Вчера" : `${diffInDay} дней назад`;
+      return diffInDay === 1 ? "Yesterday" : `${diffInDay} days ago`;
     } else if (diffInMonth < 12) {
-      return diffInMonth === 1
-        ? "1 месяц назад"
-        : `${diffInMonth} месяцев назад`;
+      return diffInMonth === 1 ? "1 mont ago" : `${diffInMonth} monthes ago`;
     } else {
-      return diffInYear === 1 ? "1 год назад" : `${diffInYear} лет назад`;
+      return diffInYear === 1 ? "1 year ago" : `${diffInYear} years ago`;
     }
   }
 
   return (
-    <View>
+    <View
+      style={{ alignSelf: "flex-start", marginLeft: "auto", marginRight: 20 }}
+    >
       <Text>{timeAgo}</Text>
     </View>
   );

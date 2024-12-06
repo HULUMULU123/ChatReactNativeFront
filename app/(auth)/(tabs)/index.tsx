@@ -1,5 +1,6 @@
 import {
   Button,
+  Image,
   Keyboard,
   ScrollView,
   StyleSheet,
@@ -131,12 +132,26 @@ export default function TabOneScreen() {
                 key={chat.chat_name}
               >
                 <View key={chat.chat_name} style={styles.chatItem}>
-                  <Text>{chat.chat_name}</Text>
+                  <Image
+                    source={require("@/assets/images/avatar.png")}
+                    style={{ width: 50, height: 50, borderRadius: 90 }}
+                  />
                   <View style={styles.msgInformation}>
-                    <Text>{chat.from}: </Text>
-                    <Text>{chat.content}</Text>
-                    <TimeAgo timestamp={chat?.created_at} />
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        fontWeight: 500,
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {chat.chat_name}
+                    </Text>
+                    <View style={{ flexDirection: "row" }}>
+                      <Text>{chat.from}: </Text>
+                      <Text>{chat.content}</Text>
+                    </View>
                   </View>
+                  <TimeAgo timestamp={chat?.created_at} />
                 </View>
               </TouchableOpacity>
             ))
@@ -191,7 +206,8 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   msgInformation: {
-    flexDirection: "row",
-    marginLeft: 200,
+    flexDirection: "column",
+    width: 100,
+    marginLeft: 20,
   },
 });

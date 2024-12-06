@@ -17,6 +17,7 @@ import Search from "@/components/main/Search";
 import UserList from "@/components/userSearch/UserList";
 import { useLocalSearchParams } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+import ModalAddFiles from "@/components/chat/ModalAddFiles";
 
 // const messages = [
 //   {
@@ -85,6 +86,8 @@ export default function ModalScreen() {
   const getAllChats = useGlobal((state) => state.getAllChats);
 
   const [messages, setMessages] = useState([]);
+  const [attachedFiles, setAttachedFiles] = useState([]);
+
   // console.log(chat.data, "chatik");
   const { signOut, session } = useSession();
   const scrollViewRef = useRef();
@@ -94,7 +97,7 @@ export default function ModalScreen() {
   const sendMessageG = useGlobal((state) => state.sendMessage);
 
   const commingMessage = useGlobal((state) => state.message);
-
+  console.log(attachedFiles, "attachedFiles");
   const renderMSG = ({ item }) => {
     const username =
       item.username === json_session.user.username ? "ME" : item.username;
@@ -168,6 +171,7 @@ export default function ModalScreen() {
           </ScrollView>
         )}
         <View style={styles.inputContiner}>
+          <ModalAddFiles setAttachedFiles={setAttachedFiles} />
           <TextInput
             style={styles.textInput}
             multiline
@@ -211,10 +215,11 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     marginTop: "auto",
     overflow: "hidden",
+    justifyContent: "center",
   },
 
   textInput: {
-    width: "90%",
+    width: "80%",
     paddingHorizontal: 10,
     minHeight: 40,
     maxHeight: 150, // Limit height to show scrollbar on overflow
