@@ -4,11 +4,19 @@ import { useSession } from "./ctx";
 import { router } from "expo-router";
 import api from "@/api/api";
 import { useState } from "react";
+// import forge from "node-forge";
+// import NodeRSA from "node-rsa";
 export default function Login() {
   const { signIn } = useSession();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const handleLogin = () => {
+    // const keypair = forge.pki.rsa.generateKeyPair({ bits: 2048, e: 0x10001 }); // 2048-битный RSA
+    // const publicKeyPem = forge.pki.publicKeyToPem(keypair.publicKey); // Публичный ключ в формате PEM
+    // const privateKeyPem = forge.pki.privateKeyToPem(keypair.privateKey); // Приватный ключ в формате PEM
+    // const key = new NodeRSA({ b: 2048 });
+    // const publicKey = key.exportKey("public");
+    // const privateKey = key.exportKey("private");
     console.log(password, username);
     api({
       method: "POST",

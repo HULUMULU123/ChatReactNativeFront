@@ -18,16 +18,29 @@ import {
 import * as ImagePicker from "expo-image-picker";
 
 import * as DocumentPicker from "expo-document-picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import useGlobal from "@/constants/global";
 
-interface ModalProps {
-  setAttachedFiles: (uriList: []) => void;
-}
+import FlashMessage, { showMessage } from "react-native-flash-message";
+
 const { height } = Dimensions.get("window");
-export default function ModalAddFiles({ setAttachedFiles }: ModalProps) {
+export default function ModalAddFiles() {
+  const { username } = useLocalSearchParams();
   const [showAddFiles, setShowAddFiles] = useState(false);
   const [image, setImage] = useState<string | null>(null);
-
+  const getFileUris = useGlobal((state) => state.getFileUris);
   const slideAnim = useRef(new Animated.Value(height)).current; // Начальная позиция окна
+
+  const showFilesToast = (msg, desc, tp) => {
+    showMessage({
+      message: msg,
+      description: desc,
+      type: tp,
+      duration: 3000,
+      backgroundColor: "red",
+      color: "white",
+    });
+  };
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -40,9 +53,39 @@ export default function ModalAddFiles({ setAttachedFiles }: ModalProps) {
 
     console.log(result);
 
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
+    if (!result.canceled && result.assets) {
+      const pickedFile = result.assets[0];
+      const fileUri = pickedFile.uri;
+
+      // Сохранение пути в AsyncStorage
+      try {
+        const existingPaths = await AsyncStorage.getItem(
+          `@files_uri_${username}`
+        );
+        const pathsArray = existingPaths ? JSON.parse(existingPaths) : [];
+        if (pathsArray.length == 0) {
+          pathsArray.push(fileUri);
+          await AsyncStorage.setItem(
+            `@files_uri_${username}`,
+            JSON.stringify(pathsArray)
+          );
+          console.log("File path saved:", fileUri);
+          getFileUris(username);
+        } else {
+          showFilesToast(
+            "Error",
+            "Now you can select only one file",
+            "default"
+          );
+        }
+      } catch (error) {
+        console.error("Error saving file path", error);
+      }
     }
+
+    // if (!result.canceled) {
+    //   setImage(result.assets[0].uri);
+    // }
   };
 
   const pickDocument = async () => {
@@ -51,11 +94,27 @@ export default function ModalAddFiles({ setAttachedFiles }: ModalProps) {
         type: "*/*", // Allow all file types
         copyToCacheDirectory: true, // Save a temporary copy for access
       });
-      console.log(result);
-      if (result.assets) {
-        setAttachedFiles((prevFiles) => [...prevFiles, result.assets]);
-      } else {
-        console.log("Document picker cancelled");
+
+      if (!result.canceled && result.assets) {
+        const pickedFile = result.assets[0];
+        const fileUri = pickedFile.uri;
+
+        // Сохранение пути в AsyncStorage
+        try {
+          const existingPaths = await AsyncStorage.getItem(
+            `@files_uri_${username}`
+          );
+          const pathsArray = existingPaths ? JSON.parse(existingPaths) : [];
+          pathsArray.push(fileUri);
+          await AsyncStorage.setItem(
+            `@files_uri_${username}`,
+            JSON.stringify(pathsArray)
+          );
+          console.log("File path saved:", fileUri);
+          getFileUris(username);
+        } catch (error) {
+          console.error("Error saving file path", error);
+        }
       }
     } catch (error) {
       console.error("Error picking document:", error);

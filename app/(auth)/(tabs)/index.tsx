@@ -100,10 +100,11 @@ export default function TabOneScreen() {
       }
       let newChat = {
         chat_name: chat.chat_name,
-        content:
-          chat.last_message.content.length < 10
+        content: chat?.last_message.content
+          ? chat?.last_message?.content.length < 10
             ? chat.last_message.content
-            : `${chat.last_message.content.slice(0, 10)}...`,
+            : `${chat.last_message.content.slice(0, 10)}...`
+          : "",
         created_at: chat.last_message.created_at,
         from: chat.last_message.from === user1 ? "Me" : chat.last_message.from,
       };
@@ -122,7 +123,7 @@ export default function TabOneScreen() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         <ScrollView style={styles.scrollChats}>
-          {allChats?.data && allChats?.data.length > 0 ? (
+          {allChats?.data && allChats?.data?.length > 0 ? (
             recreatedChats.map((chat) => (
               <TouchableOpacity
                 onPress={() => {

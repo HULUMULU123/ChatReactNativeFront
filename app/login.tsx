@@ -3,6 +3,8 @@ import { Text, View } from "@/components/Themed";
 import { useSession } from "./ctx";
 import { router } from "expo-router";
 import { useState } from "react";
+
+import { gzip, ungzip } from "pako";
 import api from "@/api/api";
 
 function checkForAuth(session: string | undefined | null) {
@@ -14,6 +16,7 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { signIn, session } = useSession();
+
   const handleLogin = async () => {
     if (username && password) {
       try {
@@ -25,11 +28,12 @@ export default function Login() {
             password: password,
           },
         });
+        console.log(res.data.user.public_key);
 
-        console.log(res.data);
-
+        const private_key = res.data.user.private_key || "";
+        delete res.data.user.private_key;
         // Assuming `signIn` is a function that updates your session
-        await signIn(res.data); // Ensure this function handles the session correctly
+        await signIn(res.data, private_key); // Ensure this function handles the session correctly
 
         // Only navigate after sign-in is successful
         router.replace("/");

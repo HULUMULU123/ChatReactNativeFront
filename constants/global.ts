@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { isLoading } from "expo-font";
 import { Platform } from "react-native";
 import { create } from "zustand";
@@ -23,8 +24,12 @@ type GlobalState = {
   chat: any;
   isLoadingChat: boolean;
   getChat: (user1: string, user2: string) => void;
+  chatKey: any;
   getAllChats: () => void;
   allChats: any;
+  fileUris: [];
+  getFileUris: (chat: string) => void;
+  deleteFileUri: (index: number, chat: any) => void;
 };
 
 const useGlobal = create<GlobalState>((set, get) => ({
@@ -55,9 +60,11 @@ const useGlobal = create<GlobalState>((set, get) => ({
       }
       if (parsed.source == "get_chat") {
         // console.log(parsed.data);
+        console.log(parsed.data.data, "get_chat");
         set((state) => ({
           chat: parsed.data,
           isLoadingChat: false,
+          chatKey: parsed.data.chat_key,
         }));
       }
       if (parsed.source == "chat_message") {
@@ -149,7 +156,7 @@ const useGlobal = create<GlobalState>((set, get) => ({
   },
 
   // Open chat
-
+  chatKey: null,
   chat: null,
 
   getChat: (user1: string, user2: string) => {
@@ -175,6 +182,45 @@ const useGlobal = create<GlobalState>((set, get) => ({
         source: "index",
       })
     );
+  },
+  fileUris: [],
+  getFileUris: async (chat) => {
+    try {
+      const fileUri = await AsyncStorage.getItem(`@files_uri_${chat}`);
+      if (fileUri) {
+        console.log("Saved file patssssh:", chat, JSON.parse(fileUri));
+        set((state) => ({
+          fileUris: JSON.parse(fileUri),
+        }));
+      } else {
+        console.log("No file path saved");
+        set((state) => ({
+          fileUris: [],
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching file path", error);
+    }
+  },
+  deleteFileUri: async (index, chat) => {
+    try {
+      const fileUri = await AsyncStorage.getItem(`@files_uri_${chat}`);
+      if (fileUri) {
+        const newFileUri = JSON.parse(fileUri);
+        newFileUri.splice(index, 1);
+        set((state) => ({
+          fileUris: newFileUri,
+        }));
+        await AsyncStorage.setItem(
+          `@files_uri_${chat}`,
+          JSON.stringify(newFileUri)
+        );
+      } else {
+        console.log("No file path saved");
+      }
+    } catch (error) {
+      console.error("Error fetching file path", error);
+    }
   },
 }));
 
