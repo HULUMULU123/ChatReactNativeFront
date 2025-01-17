@@ -17,6 +17,8 @@ import Search from "@/components/main/Search";
 import UserList from "@/components/userSearch/UserList";
 import { Link, useRouter } from "expo-router";
 import TimeAgo from "@/components/chat/TimeAgo";
+import { useTheme } from "@/context/ThemeProvider";
+import { themes, colorPalettes } from "@/context/themes";
 
 const months = {
   1: "January",
@@ -34,6 +36,8 @@ const months = {
 };
 
 export default function TabOneScreen() {
+  const { theme, colorPalette, toggleTheme, changeColorPalette } = useTheme();
+
   const { signOut, session } = useSession();
   const router = useRouter();
 
@@ -118,6 +122,15 @@ export default function TabOneScreen() {
   function handleChat(user1: string, user2: string) {
     getChat(user1, user2);
   }
+
+  const themeStyles = StyleSheet.create({
+    container: {},
+    title: {},
+    separator: {},
+    scrollChats: {},
+    chatItem: {},
+    msgInformation: {},
+  });
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

@@ -41,11 +41,14 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 import { Slot } from "expo-router";
+import { ThemeProvider } from "@/context/ThemeProvider";
 
 function RootLayoutNav() {
   return (
-    <SessionProvider>
-      <Slot />
-    </SessionProvider>
+    <ThemeProvider>
+      <SessionProvider>
+        <Slot />
+      </SessionProvider>
+    </ThemeProvider>
   );
 }

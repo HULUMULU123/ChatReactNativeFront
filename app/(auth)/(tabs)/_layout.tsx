@@ -6,7 +6,8 @@ import { Pressable } from "react-native";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { useClientOnlyValue } from "@/components/useClientOnlyValue";
-
+import { useTheme } from "@/context/ThemeProvider";
+import { themes, colorPalettes } from "@/context/themes";
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
@@ -17,29 +18,39 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-
+  const { theme, colorPalette, toggleTheme, changeColorPalette } = useTheme();
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarActiveTintColor: themes[theme].system,
+
+        // tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
         headerShown: useClientOnlyValue(false, true),
+        headerStyle: {
+          backgroundColor: themes[theme].menuBackGroundUp,
+        },
+        tabBarStyle: { backgroundColor: themes[theme].menuBackGroundDown },
+
+        headerTintColor: "#fff",
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: "All Chats",
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="comment" color={color} />
+          ),
           headerRight: () => (
-            <Link href="/modal" asChild>
+            <Link href="/Search" asChild>
               <Pressable>
                 {({ pressed }) => (
                   <FontAwesome
                     name="search"
                     size={25}
-                    color={Colors[colorScheme ?? "light"].text}
+                    color="#fff"
                     style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
                   />
                 )}
@@ -51,15 +62,17 @@ export default function TabLayout() {
       <Tabs.Screen
         name="two"
         options={{
-          title: "Tab Two",
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: "All Groups",
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="comments" color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="gear" color={color} />,
         }}
       />
     </Tabs>

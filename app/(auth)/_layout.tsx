@@ -14,13 +14,14 @@ export default function AppLayout() {
   // Only require authentication within the (app) group's layout as users
   // need to be able to access the (auth) group and sign in again.
   if (!session) {
-    return <Redirect href="/login" />;
+    return <Redirect href="/first_page" />;
   }
 
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+      <Stack.Screen name="Search" options={{ presentation: "modal" }} />
+      <Stack.Screen name="Username" options={{ presentation: "modal" }} />
       <Stack.Screen
         name="(chat)/[username]"
         options={{

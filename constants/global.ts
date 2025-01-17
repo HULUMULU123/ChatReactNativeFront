@@ -92,8 +92,8 @@ const useGlobal = create<GlobalState>((set, get) => ({
       // }
       // resp(set, get, parsed.data);
     };
-    socket.onerror = () => {
-      console.log("soket error");
+    socket.onerror = (e) => {
+      console.log("soket error", e);
     };
     socket.onclose = () => {
       console.log("soket close");

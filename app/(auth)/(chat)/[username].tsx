@@ -34,6 +34,9 @@ import * as Network from "expo-network";
 import AttachedImage from "@/components/chat/AttachedImage";
 import CryptoJS from "crypto-js";
 import forge from "node-forge";
+import { useTheme } from "@/context/ThemeProvider";
+import { colorPalettes, themes } from "@/context/themes";
+import { LinearGradient } from "expo-linear-gradient";
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
   color: string;
@@ -73,6 +76,11 @@ export default function ModalScreen() {
   const [encChatKey, setEncChatKey] = useState<CryptoJS.lib.WordArray | null>(
     null
   );
+
+  const { theme, colorPalette, toggleTheme, changeColorPalette } = useTheme();
+  const currentTheme = themes[theme];
+  const currentColors = colorPalettes[colorPalette];
+
   const renderMSG = ({ item }) => {
     const username =
       item.username === json_session.user.username ? "ME" : item.username;
@@ -330,9 +338,85 @@ export default function ModalScreen() {
     getAllChats();
   };
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "flex-start",
+      width: "100%",
+    },
+    title: {
+      fontSize: 20,
+      fontWeight: "bold",
+      textAlign: "center",
+    },
+    separator: {
+      marginVertical: 30,
+      height: 1,
+      width: "80%",
+    },
+
+    inputContiner: {
+      flexDirection: "row",
+      width: "90%",
+      alignItems: "center",
+      backgroundColor: "#e0e0e0",
+      borderRadius: 50,
+      marginTop: "auto",
+      overflow: "hidden",
+      justifyContent: "center",
+    },
+
+    textInput: {
+      width: "80%",
+      paddingHorizontal: 10,
+      minHeight: 40,
+      maxHeight: 150, // Limit height to show scrollbar on overflow
+
+      fontSize: 15,
+
+      overflow: "hidden", // Ensures text does not overflow the TextInput area
+      textAlignVertical: "center", // Align text to the top for multiline input
+    },
+
+    friendMSG: {
+      width: "40%",
+
+      backgroundColor: currentColors.messageColor,
+      borderRadius: 20,
+      borderBottomLeftRadius: 0,
+      marginLeft: 5,
+      marginVertical: 5,
+      padding: 10,
+    },
+    myMSG: {
+      width: "40%",
+      marginLeft: "auto",
+      backgroundColor: currentColors.myMessageColor,
+      fontSize: 15,
+      borderRadius: 20,
+      borderBottomRightRadius: 0,
+      marginRight: 5,
+      marginVertical: 5,
+      padding: 10,
+    },
+    msgAuthorFriend: {
+      fontSize: 20,
+      textTransform: "uppercase",
+    },
+    msgAuthorMe: {},
+    msgTextMe: {
+      color: "#000",
+      fontSize: 16,
+    },
+    msgTextFriend: {
+      fontSize: 16,
+    },
+  });
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
+      <LinearGradient style={styles.container} colors={currentColors.gradient}>
         {isLoading ? (
           <Text>Loading...</Text>
         ) : (
@@ -397,83 +481,7 @@ export default function ModalScreen() {
           </TouchableWithoutFeedback>
         </View>
         <FlashMessage position="top" />
-      </View>
+      </LinearGradient>
     </TouchableWithoutFeedback>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "flex-start",
-    width: "100%",
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
-  },
-
-  inputContiner: {
-    flexDirection: "row",
-    width: "90%",
-    alignItems: "center",
-    backgroundColor: "#e0e0e0",
-    borderRadius: 50,
-    marginTop: "auto",
-    overflow: "hidden",
-    justifyContent: "center",
-  },
-
-  textInput: {
-    width: "80%",
-    paddingHorizontal: 10,
-    minHeight: 40,
-    maxHeight: 150, // Limit height to show scrollbar on overflow
-
-    fontSize: 15,
-
-    overflow: "hidden", // Ensures text does not overflow the TextInput area
-    textAlignVertical: "center", // Align text to the top for multiline input
-  },
-
-  friendMSG: {
-    width: "40%",
-
-    backgroundColor: "#e1e0e6",
-    borderRadius: 20,
-    borderBottomLeftRadius: 0,
-    marginLeft: 5,
-    marginVertical: 5,
-    padding: 10,
-  },
-  myMSG: {
-    width: "40%",
-    marginLeft: "auto",
-    backgroundColor: "#1987f7",
-    fontSize: 15,
-    borderRadius: 20,
-    borderBottomRightRadius: 0,
-    marginRight: 5,
-    marginVertical: 5,
-    padding: 10,
-  },
-  msgAuthorFriend: {
-    fontSize: 20,
-    textTransform: "uppercase",
-  },
-  msgAuthorMe: {},
-  msgTextMe: {
-    color: "#fff",
-    fontSize: 16,
-  },
-  msgTextFriend: {
-    fontSize: 16,
-  },
-});
