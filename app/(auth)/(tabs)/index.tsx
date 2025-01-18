@@ -19,6 +19,10 @@ import { Link, useRouter } from "expo-router";
 import TimeAgo from "@/components/chat/TimeAgo";
 import { useTheme } from "@/context/ThemeProvider";
 import { themes, colorPalettes } from "@/context/themes";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import CryptoJS from "crypto-js";
+import forge from "node-forge";
+import { BallIndicator } from "react-native-indicators";
 
 const months = {
   1: "January",
@@ -37,7 +41,7 @@ const months = {
 
 export default function TabOneScreen() {
   const { theme, colorPalette, toggleTheme, changeColorPalette } = useTheme();
-
+  const currentTheme = themes[theme];
   const { signOut, session } = useSession();
   const router = useRouter();
 
@@ -102,15 +106,18 @@ export default function TabOneScreen() {
           months[created_month + 1]
         } ${created_year}`;
       }
+      const content = 0;
       let newChat = {
         chat_name: chat.chat_name,
-        content: chat?.last_message.content
-          ? chat?.last_message?.content.length < 10
-            ? chat.last_message.content
-            : `${chat.last_message.content.slice(0, 10)}...`
-          : "",
+        content: "Secret text...",
+        // content: chat?.last_message.content
+        //   ? chat?.last_message?.content.length < 10
+        //     ? chat.last_message.content
+        //     : `${chat.last_message.content.slice(0, 10)}...`
+        //   : "",
         created_at: chat.last_message.created_at,
         from: chat.last_message.from === user1 ? "Me" : chat.last_message.from,
+        avatar: chat.avatar,
       };
       console.log(chat.chat_name, recreatedChats, newChat, "testingChats");
       setRecreatedChats((prevChats) => [...prevChats, newChat]);
@@ -134,7 +141,9 @@ export default function TabOneScreen() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
+      <View
+        style={[styles.container, { backgroundColor: currentTheme.background }]}
+      >
         <ScrollView style={styles.scrollChats}>
           {allChats?.data && allChats?.data?.length > 0 ? (
             recreatedChats.map((chat) => (
@@ -145,32 +154,65 @@ export default function TabOneScreen() {
                 }}
                 key={chat.chat_name}
               >
-                <View key={chat.chat_name} style={styles.chatItem}>
+                <View
+                  key={chat.chat_name}
+                  style={[
+                    styles.chatItem,
+                    {
+                      backgroundColor: currentTheme.blockBackground,
+                      borderRadius: 10,
+                      padding: 10,
+                      borderColor: currentTheme.brand,
+                    },
+                  ]}
+                >
                   <Image
-                    source={require("@/assets/images/avatar.png")}
+                    source={{
+                      uri: `http://10.0.2.2:8000${chat.avatar}`,
+                    }}
                     style={{ width: 50, height: 50, borderRadius: 90 }}
                   />
-                  <View style={styles.msgInformation}>
+                  <View
+                    style={[
+                      styles.msgInformation,
+                      { backgroundColor: "transparent" },
+                    ]}
+                  >
                     <Text
                       style={{
                         fontSize: 18,
-                        fontWeight: 500,
+                        fontWeight: "500",
                         textTransform: "capitalize",
+                        color: currentTheme.text,
                       }}
                     >
                       {chat.chat_name}
                     </Text>
-                    <View style={{ flexDirection: "row" }}>
-                      <Text>{chat.from}: </Text>
-                      <Text>{chat.content}</Text>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        backgroundColor: "transparent",
+                      }}
+                    >
+                      <Text style={{ color: currentTheme.text }}>
+                        {chat.from}:{" "}
+                      </Text>
+                      <Text style={{ color: currentTheme.infoText }}>
+                        {chat.content}
+                      </Text>
                     </View>
                   </View>
-                  <TimeAgo timestamp={chat?.created_at} />
+                  <TimeAgo
+                    color={currentTheme.text}
+                    timestamp={chat?.created_at}
+                  />
                 </View>
               </TouchableOpacity>
             ))
           ) : (
-            <Text>Loading...</Text>
+            <View style={{ backgroundColor: "transparent", flex: 1 }}>
+              <BallIndicator color={currentTheme.brand} size={50} />
+            </View>
           )}
         </ScrollView>
       </View>
@@ -213,7 +255,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
 
-    marginVertical: 15,
+    marginVertical: 5,
     marginLeft: 10,
     marginRight: 10,
     borderBottomWidth: 1,

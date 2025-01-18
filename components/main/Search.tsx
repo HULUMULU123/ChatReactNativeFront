@@ -1,4 +1,6 @@
 import useGlobal from "@/constants/global";
+import { useTheme } from "@/context/ThemeProvider";
+import { themes } from "@/context/themes";
 import { FontAwesome } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -19,7 +21,8 @@ function TabBarIcon(props: {
 export default function Search() {
   const [search, setSearch] = useState("");
   const [isFocused, setIsFocused] = useState(false);
-
+  const { theme, colorPalette, toggleTheme, changeColorPalette } = useTheme();
+  const currentTheme = themes[theme];
   const searchUsers = useGlobal((state) => state.searchUsers);
 
   useEffect(() => {
@@ -35,10 +38,16 @@ export default function Search() {
           value={search}
           onChangeText={(text) => onSearch(text)}
           placeholder="Search"
+          placeholderTextColor={currentTheme.text}
           style={[
             styles.input, // Base style
-            isFocused ? styles.focusedInput : {}, // Conditional focused style
-            search ? styles.typingInput : {}, // Conditional typing style
+            isFocused
+              ? { borderColor: currentTheme.brand }
+              : { borderColor: "#ccc" }, // Conditional focused style
+            {
+              backgroundColor: currentTheme.blockBackground,
+              color: currentTheme.text,
+            },
           ]}
           onFocus={() => {
             console.log("focus");
@@ -51,7 +60,7 @@ export default function Search() {
             <FontAwesome
               name="times-circle"
               size={25}
-              color="#e9e9e9"
+              color={currentTheme.infoText}
               style={styles.icon}
             />
           </TouchableOpacity>
@@ -69,10 +78,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 10,
     width: "100%",
+    marginTop: 10,
   },
   icon: {
     position: "absolute",
-    right: 5,
+    right: 7,
     top: "-34%",
   },
 
@@ -83,10 +93,9 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
 
     borderRadius: 10,
-    backgroundColor: "#efefef",
+
     width: "100%",
     paddingHorizontal: 10,
     paddingVertical: 4,

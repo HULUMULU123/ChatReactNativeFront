@@ -22,6 +22,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import useGlobal from "@/constants/global";
 
 import FlashMessage, { showMessage } from "react-native-flash-message";
+import { useTheme } from "@/context/ThemeProvider";
+import { colorPalettes, themes } from "@/context/themes";
 
 const { height } = Dimensions.get("window");
 export default function ModalAddFiles() {
@@ -30,7 +32,9 @@ export default function ModalAddFiles() {
   const [image, setImage] = useState<string | null>(null);
   const getFileUris = useGlobal((state) => state.getFileUris);
   const slideAnim = useRef(new Animated.Value(height)).current; // Начальная позиция окна
-
+  const { theme, colorPalette, toggleTheme, changeColorPalette } = useTheme();
+  const currentTheme = themes[theme];
+  const currentColors = colorPalettes[colorPalette];
   const showFilesToast = (msg, desc, tp) => {
     showMessage({
       message: msg,
@@ -142,10 +146,10 @@ export default function ModalAddFiles() {
   return (
     <>
       <TouchableWithoutFeedback onPress={openModal}>
-        <FontAwesome name="paperclip" size={25} color="#000" />
+        <FontAwesome name="paperclip" size={25} color={currentTheme.infoText} />
       </TouchableWithoutFeedback>
       {showAddFiles && (
-        <Modal transparent visible={showAddFiles} animationType="none">
+        <Modal transparent visible={showAddFiles} animationType="fade">
           <View style={styles.modalOverlay}>
             {/* Затемненный фон */}
             <TouchableOpacity style={styles.overlay} onPress={closeModal} />
@@ -154,9 +158,12 @@ export default function ModalAddFiles() {
               style={[
                 styles.modalContent,
                 { transform: [{ translateY: slideAnim }] },
+                { backgroundColor: currentTheme.blockBackground },
               ]}
             >
-              <Text style={styles.modalText}>Это выпадающее окно!</Text>
+              <Text style={[styles.modalText, { color: currentTheme.text }]}>
+                Here you can attach file!
+              </Text>
               <View
                 style={{ flexDirection: "row", justifyContent: "space-around" }}
               >
@@ -170,11 +177,11 @@ export default function ModalAddFiles() {
                         paddingVertical: 10,
                         paddingHorizontal: 10,
                         borderRadius: 100,
-                        backgroundColor: "#00c217",
+                        backgroundColor: currentTheme.menuBackGroundUp,
                       }}
                     />
 
-                    <Text style={{ color: "#000" }}>Photo</Text>
+                    <Text style={{ color: currentTheme.text }}>Photo</Text>
                   </View>
                 </TouchableWithoutFeedback>
                 {/* <Button
@@ -191,18 +198,21 @@ export default function ModalAddFiles() {
                         paddingVertical: 10,
                         paddingHorizontal: 10,
                         borderRadius: 100,
-                        backgroundColor: "#009dff",
+                        backgroundColor: currentColors.nameColor,
                       }}
                     />
 
-                    <Text style={{ color: "#000" }}>File</Text>
+                    <Text style={{ color: currentTheme.text }}>File</Text>
                   </View>
                 </TouchableWithoutFeedback>
                 {/* <Button title="Pick a Document" onPress={pickDocument} /> */}
               </View>
               {image && <Image source={{ uri: image }} style={styles.image} />}
-              <TouchableOpacity style={styles.button} onPress={closeModal}>
-                <Text style={styles.buttonText}>Закрыть</Text>
+              <TouchableOpacity
+                style={[styles.button, { backgroundColor: currentTheme.brand }]}
+                onPress={closeModal}
+              >
+                <Text style={styles.buttonText}>Close</Text>
               </TouchableOpacity>
             </Animated.View>
           </View>
@@ -217,16 +227,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f4f4f4",
   },
   button: {
-    backgroundColor: "#007bff",
     padding: 15,
     borderRadius: 8,
+    marginTop: 20,
+    justifyContent: "center",
+    alignItems: "center",
   },
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
+    fontSize: 16,
   },
   modalOverlay: {
     flex: 1,
@@ -238,7 +250,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     height: height / 2, // Половина экрана
-    backgroundColor: "#fff",
+
     padding: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,

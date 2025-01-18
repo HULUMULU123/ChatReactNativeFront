@@ -26,12 +26,14 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import ChangeProfileInfo from "@/components/profile/ChangeProfileInfo";
+import ChangeProfileImage from "@/components/profile/ChangeProfileImage";
 export default function ModalScreen() {
   const { signOut, session } = useSession();
   const { theme, colorPalette, toggleTheme, changeColorPalette } = useTheme();
   const currentTheme = themes[theme];
-  const bounceValue = useSharedValue(0); // Начальная позиция
   const currentColors = colorPalettes[colorPalette];
+  const bounceValue = useSharedValue(0); // Начальная позиция
+
   const json_session = JSON.parse(session || "");
   // const image_path = json_session.user.thumbnail
   //   ? json_session.user.thumbnail
@@ -84,7 +86,7 @@ export default function ModalScreen() {
         }}
       >
         <Image
-          source={require("@/assets/images/avatar.png")}
+          source={{ uri: `http://10.0.2.2:8000${json_session.user.thumbnail}` }}
           style={{
             width: 70,
             height: 70,
@@ -93,25 +95,33 @@ export default function ModalScreen() {
           }}
         />
         <View style={{ backgroundColor: "transparent" }}>
-          <Text style={[{ fontSize: 18 }, themeStyles.title]}>Ivan Ivanov</Text>
+          <View
+            style={{ backgroundColor: "transparent", flexDirection: "row" }}
+          >
+            <Text
+              style={[
+                { fontSize: 18, textTransform: "capitalize" },
+                themeStyles.title,
+              ]}
+            >
+              {json_session.user.first_name}{" "}
+            </Text>
+            <Text
+              style={[
+                { fontSize: 18, textTransform: "capitalize" },
+                themeStyles.title,
+              ]}
+            >
+              {json_session.user.last_name}
+            </Text>
+          </View>
+
           <Text style={[styles.title, themeStyles.title]}>
             @{json_session.user.username.toUpperCase()}
           </Text>
         </View>
-        <TouchableWithoutFeedback>
-          <View
-            style={{
-              backgroundColor: currentTheme.system,
-              borderRadius: 90,
-              padding: 10,
-              position: "absolute",
-              right: 10,
-              bottom: 5,
-            }}
-          >
-            <FontAwesome name="camera" size={23} color="#fff" />
-          </View>
-        </TouchableWithoutFeedback>
+
+        <ChangeProfileImage username={json_session.user.username} />
       </View>
 
       <View
@@ -198,15 +208,25 @@ export default function ModalScreen() {
             alignItems: "center",
             justifyContent: "center",
             gap: 10,
-            backgroundColor: "#fccfcf",
+            backgroundColor: currentTheme.error,
             paddingVertical: 5,
             marginTop: 10,
           }}
         >
-          <Text style={{ color: "red", fontSize: 15, fontWeight: "700" }}>
+          <Text
+            style={{
+              color: currentTheme.errorText,
+              fontSize: 15,
+              fontWeight: "700",
+            }}
+          >
             Sign Out
           </Text>
-          <FontAwesome name="sign-out" size={23} color="red" />
+          <FontAwesome
+            name="sign-out"
+            size={23}
+            color={currentTheme.errorText}
+          />
         </View>
       </TouchableWithoutFeedback>
 

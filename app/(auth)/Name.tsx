@@ -16,6 +16,7 @@ import UserList from "@/components/userSearch/UserList";
 import { useTheme } from "@/context/ThemeProvider";
 import { themes, colorPalettes } from "@/context/themes";
 import { FontAwesome } from "@expo/vector-icons";
+import api from "@/api/api";
 export default function UsernameScreen() {
   const { signOut, session } = useSession();
   const { theme, colorPalette, toggleTheme, changeColorPalette } = useTheme();
@@ -23,12 +24,27 @@ export default function UsernameScreen() {
   const currentColors = colorPalettes[colorPalette];
 
   const json_session = JSON.parse(session || "");
-  const [username, setUsername] = useState(json_session.user.username);
+  const [name, setName] = useState(json_session.user.first_name);
 
   // const socketConnect = useGlobal((state) => state.socketConnect);
   // const socketClose = useGlobal((state) => state.socketClose);
 
-  const changeInfo = () => {};
+  const changeInfo = async () => {
+    try {
+      const res = await api({
+        method: "POST",
+        url: "http://10.0.2.2:8000/api/update/",
+        data: {
+          type: "name",
+          info: name,
+          username: json_session.user.username,
+        },
+      });
+      signOut();
+    } catch {
+      console.log("something went wrong");
+    }
+  };
   return (
     <View
       style={{
@@ -63,8 +79,8 @@ export default function UsernameScreen() {
         >
           <TextInput
             style={{ color: currentTheme.text, fontSize: 19 }}
-            value={username}
-            onChangeText={(text) => setUsername(text)}
+            value={name}
+            onChangeText={(text) => setName(text)}
             autoFocus
           />
           <TouchableWithoutFeedback onPress={changeInfo}>
@@ -73,13 +89,11 @@ export default function UsernameScreen() {
         </View>
       </View>
       <Text style={{ color: currentTheme.infoText, marginTop: 10 }}>
-        You can choose a username. If you do, people will be able to find you by
-        this username and contact you within needing your phone number.
+        Here you can change your first name!
       </Text>
       <Text style={{ color: currentTheme.infoText, marginTop: 10 }}>
-        You can use a-z, 0-9 and underscores. Menimum length is 5 characters.
+        You can use a-z.
       </Text>
     </View>
   );
 }
-const styles = StyleSheet.create({});

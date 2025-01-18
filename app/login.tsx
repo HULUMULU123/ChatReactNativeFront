@@ -212,12 +212,28 @@ export default function Login() {
             onChangeText={(text) => setUsername(text)}
             placeholderTextColor={isLightTheme ? "#aaa" : "#666"}
           />
+          <View
+            style={{ flexDirection: "row", backgroundColor: "transparent" }}
+          >
+            <Text>Don't have an account? You can sign up </Text>
+            <TouchableWithoutFeedback onPress={handleRegistration}>
+              <Text
+                style={{
+                  color: currentTheme.brand,
+                  textDecorationLine: "underline",
+                }}
+              >
+                here
+              </Text>
+            </TouchableWithoutFeedback>
+          </View>
           <TouchableWithoutFeedback onPress={goToNextStep}>
             <View
               style={{
                 backgroundColor: currentTheme.brand,
                 padding: 10,
                 borderRadius: 7,
+                marginTop: 10,
               }}
             >
               <Text style={{ color: "#fff", fontWeight: "500", fontSize: 15 }}>

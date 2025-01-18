@@ -12,6 +12,8 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import useGlobal from "@/constants/global";
 import { useLocalSearchParams } from "expo-router";
+import { useTheme } from "@/context/ThemeProvider";
+import { colorPalettes, themes } from "@/context/themes";
 
 interface filesProps {
   png: string;
@@ -24,6 +26,9 @@ export default function AttachedFiles() {
   const deleteFileUri = useGlobal((state) => state.deleteFileUri);
   const { username } = useLocalSearchParams();
   let newFilesUris: any[] = [];
+  const { theme, colorPalette, toggleTheme, changeColorPalette } = useTheme();
+  const currentTheme = themes[theme];
+  const currentColors = colorPalettes[colorPalette];
 
   useEffect(() => {
     requestPermissions();
@@ -38,11 +43,22 @@ export default function AttachedFiles() {
 
   console.log(fileUris);
   return (
-    <>
+    <View
+      style={{
+        width: "100%",
+        backgroundColor: currentTheme.blockBackground,
+      }}
+    >
       {fileUris.length > 0 && (
-        <View style={styles.attachView}>
+        <View style={[styles.attachView, { alignItems: "center" }]}>
           {fileUris.map((index, item) => (
-            <View key={index} style={styles.attachedFile}>
+            <View
+              key={index}
+              style={[
+                styles.attachedFile,
+                { backgroundColor: currentColors.nameColor },
+              ]}
+            >
               <TouchableOpacity onPress={() => deleteFileUri(index, username)}>
                 <Text
                   style={{
@@ -66,7 +82,7 @@ export default function AttachedFiles() {
       /> */}
         </View>
       )}
-    </>
+    </View>
   );
 }
 
@@ -85,7 +101,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: "center",
     paddingVertical: 10,
-    backgroundColor: "#56a8ff",
+
     position: "relative",
   },
   attachedText: {

@@ -7,6 +7,8 @@ export interface Theme {
   infoText: string;
   system: string;
   brand: string;
+  error: string;
+  errorText: string;
 }
 
 export interface ColorPalette {
@@ -21,23 +23,27 @@ export interface ColorPalette {
 export const themes: Record<"light" | "dark", Theme> = {
   light: {
     background: "#f1eff1",
-    menuBackGroundUp: "#b54e2f",
+    menuBackGroundUp: "#a259f7",
     menuBackGroundDown: "#fffeff",
     blockBackground: "#fffeff",
     text: "#242224",
     infoText: "#575656",
-    system: "#fa7034",
+    system: "#8217ff",
     brand: "#7600ff",
+    error: "#fccfcf",
+    errorText: "#de5252",
   },
   dark: {
     background: "#010001",
     blockBackground: "#191819",
-    menuBackGroundUp: "#232523",
+    menuBackGroundUp: "#260152",
     menuBackGroundDown: "#232523",
     text: "#fffeff",
     infoText: "#a8a7a7",
-    system: "#99be74",
-    brand: "##a651f5",
+    system: "#9a44fc",
+    brand: "#a651f5",
+    error: "#de5252",
+    errorText: "#fccfcf",
   },
 };
 

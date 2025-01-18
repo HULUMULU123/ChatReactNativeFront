@@ -37,6 +37,8 @@ import forge from "node-forge";
 import { useTheme } from "@/context/ThemeProvider";
 import { colorPalettes, themes } from "@/context/themes";
 import { LinearGradient } from "expo-linear-gradient";
+import { BallIndicator } from "react-native-indicators";
+
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
   color: string;
@@ -68,7 +70,7 @@ export default function ModalScreen() {
 
   const [progress, setProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
-  const [uploadedFileUrl, setUploadedFileUrl] = useState(null);
+  const [uploadedFileUrl, setUploadedFileUrl] = useState("");
 
   const [networkType, setNetworkType] = useState(null);
 
@@ -137,7 +139,7 @@ export default function ModalScreen() {
       const plaintextDecrypted = decrypted.toString(CryptoJS.enc.Utf8);
       console.log("Decrypted text (UTF-8):", plaintextDecrypted);
 
-      return plaintextDecrypted || "Decryption failed"; // Возвращаем результат
+      return plaintextDecrypted || ""; // Возвращаем результат
     } catch (err) {
       console.log(key, encryptedData, "error during");
       console.error("Error during decryption:", err.message);
@@ -193,7 +195,8 @@ export default function ModalScreen() {
         config
       );
       console.log("File uploaded:", response.data);
-      setUploadedFileUrl(response.data.secure_url); // Используем secure_url вместо fileUrl
+      const url = `${response.data.secure_url}`;
+      setUploadedFileUrl(url); // Используем secure_url вместо fileUrl
       await AsyncStorage.setItem(`@files_uri_${username}`, "");
       return response.data.secure_url;
     } catch (error) {
@@ -288,12 +291,22 @@ export default function ModalScreen() {
     if (existingPaths.length > 0) {
       uploadFile(existingPaths[0])
         .then((res) => {
+          const encrypted = CryptoJS.AES.encrypt(message, encChatKey, {
+            mode: CryptoJS.mode.ECB,
+            padding: CryptoJS.pad.Pkcs7, // Обязательно для корректного шифрования
+          });
+          const encryptedData = encrypted.ciphertext.toString(
+            CryptoJS.enc.Base64
+          );
           const messageContent = {
-            text: message,
+            text: encryptedData,
             file: res,
           };
           sendMessageG(messageContent, json_session.user.username, username);
           console.log(messageContent);
+          console.log(res, "uiy1");
+
+          console.log(uploadFile, "uiy2");
         })
         .catch((err) => console.log(err));
     } else {
@@ -326,6 +339,7 @@ export default function ModalScreen() {
       sendMessageG(messageContent, json_session.user.username, username);
       console.log(messageContent);
     }
+    console.log("checkingpppp", 123454, uploadedFileUrl, "hue");
     const newMessage = {
       id: Math.random(),
       content: message,
@@ -333,6 +347,7 @@ export default function ModalScreen() {
       username: json_session.user.username,
     };
     setMessage("");
+    console.log("checkingpppp", newMessage);
     // messages.push(newMessage);
     setMessages((prevMessages) => [...prevMessages, newMessage]);
     getAllChats();
@@ -358,10 +373,10 @@ export default function ModalScreen() {
 
     inputContiner: {
       flexDirection: "row",
-      width: "90%",
+      width: "100%",
       alignItems: "center",
-      backgroundColor: "#e0e0e0",
-      borderRadius: 50,
+      backgroundColor: currentTheme.background,
+
       marginTop: "auto",
       overflow: "hidden",
       justifyContent: "center",
@@ -418,7 +433,9 @@ export default function ModalScreen() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <LinearGradient style={styles.container} colors={currentColors.gradient}>
         {isLoading ? (
-          <Text>Loading...</Text>
+          <View style={{ flex: 1, backgroundColor: "transparent" }}>
+            <BallIndicator color={currentColors.nameColor} size={80} />
+          </View>
         ) : (
           <ScrollView ref={scrollViewRef} style={{ width: "100%" }}>
             {messages.map((item) =>
@@ -450,7 +467,7 @@ export default function ModalScreen() {
         )}
 
         <AttachedFiles />
-        {uploading && (
+        {/* {uploading && (
           <View style={{ marginTop: 20 }}>
             <Text>Uploading: {progress}%</Text>
             <ProgressBarAndroid
@@ -465,7 +482,7 @@ export default function ModalScreen() {
             <Text>File uploaded successfully!</Text>
             <Text>File URL: {uploadedFileUrl}</Text>
           </View>
-        )}
+        )} */}
         <View style={styles.inputContiner}>
           <ModalAddFiles />
           <TextInput
@@ -477,7 +494,7 @@ export default function ModalScreen() {
             onChangeText={(text) => setMessage(text)}
           />
           <TouchableWithoutFeedback onPress={() => sendMessage()}>
-            <FontAwesome name="send" size={25} color="#000" />
+            <FontAwesome name="send" size={25} color={currentTheme.infoText} />
           </TouchableWithoutFeedback>
         </View>
         <FlashMessage position="top" />

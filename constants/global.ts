@@ -30,6 +30,8 @@ type GlobalState = {
   fileUris: [];
   getFileUris: (chat: string) => void;
   deleteFileUri: (index: number, chat: any) => void;
+  getAvatar: (username: string) => void;
+  avatarUri: string;
 };
 
 const useGlobal = create<GlobalState>((set, get) => ({
@@ -63,9 +65,14 @@ const useGlobal = create<GlobalState>((set, get) => ({
         console.log(parsed.data.data, "get_chat");
         set((state) => ({
           chat: parsed.data,
-          isLoadingChat: false,
+
           chatKey: parsed.data.chat_key,
         }));
+        setTimeout(() => {
+          set((state) => ({
+            isLoadingChat: false,
+          }));
+        }, 2000);
       }
       if (parsed.source == "chat_message") {
         set((state) => ({
@@ -78,8 +85,14 @@ const useGlobal = create<GlobalState>((set, get) => ({
         );
       }
       if (parsed.source == "get_all_chats") {
+        console.log("allchats", parsed.data);
         set((state) => ({
           allChats: parsed.data,
+        }));
+      }
+      if (parsed.source == "get_avatar") {
+        set((state) => ({
+          avatarUri: parsed.data,
         }));
       }
       // const responses = {
@@ -221,6 +234,17 @@ const useGlobal = create<GlobalState>((set, get) => ({
     } catch (error) {
       console.error("Error fetching file path", error);
     }
+  },
+
+  avatarUri: "",
+  getAvatar: (username) => {
+    const socket = get().socket;
+    socket.send(
+      JSON.stringify({
+        source: "avatar",
+        username: username,
+      })
+    );
   },
 }));
 

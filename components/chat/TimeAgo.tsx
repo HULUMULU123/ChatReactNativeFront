@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Text, View } from "react-native";
 
-function TimeAgo({ timestamp }) {
+function TimeAgo({ timestamp, color }) {
   const [timeAgo, setTimeAgo] = useState("");
 
   useEffect(() => {
@@ -45,7 +45,7 @@ function TimeAgo({ timestamp }) {
     <View
       style={{ alignSelf: "flex-start", marginLeft: "auto", marginRight: 20 }}
     >
-      <Text>{timeAgo}</Text>
+      <Text style={{ color: color }}>{timeAgo}</Text>
     </View>
   );
 }

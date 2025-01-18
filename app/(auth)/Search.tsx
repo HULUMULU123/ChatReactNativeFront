@@ -14,6 +14,7 @@ import Search from "@/components/main/Search";
 import UserList from "@/components/userSearch/UserList";
 import { useTheme } from "@/context/ThemeProvider";
 import { themes, colorPalettes } from "@/context/themes";
+import { BallIndicator } from "react-native-indicators";
 export default function ModalScreen() {
   const { signOut, session } = useSession();
   const { theme, colorPalette, toggleTheme, changeColorPalette } = useTheme();
@@ -45,33 +46,44 @@ export default function ModalScreen() {
   });
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={[styles.container, themeStyles.container]}>
-        <Text style={styles.title}>All Chats</Text>
+      <View
+        style={[
+          styles.container,
+          themeStyles.container,
+          { backgroundColor: currentTheme.background },
+        ]}
+      >
+        {/* <Text style={styles.title}>All Chats</Text> */}
         <Search />
-        <Text>Welcome, {json_session.user.username.toUpperCase()}</Text>
+        {/* <Text>Welcome, {json_session.user.username.toUpperCase()}</Text> */}
         <View
           style={styles.separator}
           lightColor="#eee"
           darkColor="rgba(255,255,255,0.1)"
         />
-        <View>
+        <View style={{ backgroundColor: "transparent" }}>
           {!isLoading ? (
-            <UserList users={searchList} />
+            searchList?.length > 0 ? (
+              <UserList users={searchList} />
+            ) : (
+              <Text
+                style={{
+                  color: currentTheme.text,
+                  fontWeight: "600",
+                  fontSize: 16,
+                }}
+              >
+                Sorry, there is no user with this name 😔
+              </Text>
+            )
           ) : (
             // searchList?.map((item) => (
             //   <Text key={item.username}>{item.username}</Text>
             // ))
-            <Text>Loading...</Text>
+            // <Text>Loading...</Text>
+            <BallIndicator color={currentTheme.brand} size={50} />
           )}
         </View>
-        <Button
-          title="test"
-          onPress={() => {
-            // The `app/(app)/_layout.tsx` will redirect to the sign-in screen.
-            // signOut();
-            testpress();
-          }}
-        />
       </View>
     </TouchableWithoutFeedback>
   );
@@ -88,7 +100,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   separator: {
-    marginVertical: 30,
+    marginVertical: 10,
     height: 1,
     width: "80%",
   },

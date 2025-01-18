@@ -16,6 +16,7 @@ import UserList from "@/components/userSearch/UserList";
 import { useTheme } from "@/context/ThemeProvider";
 import { themes, colorPalettes } from "@/context/themes";
 import { FontAwesome } from "@expo/vector-icons";
+import api from "@/api/api";
 export default function UsernameScreen() {
   const { signOut, session } = useSession();
   const { theme, colorPalette, toggleTheme, changeColorPalette } = useTheme();
@@ -28,7 +29,22 @@ export default function UsernameScreen() {
   // const socketConnect = useGlobal((state) => state.socketConnect);
   // const socketClose = useGlobal((state) => state.socketClose);
 
-  const changeInfo = () => {};
+  const changeInfo = async () => {
+    try {
+      const res = await api({
+        method: "POST",
+        url: "http://10.0.2.2:8000/api/update/",
+        data: {
+          type: "username",
+          info: username,
+          username: json_session.user.username,
+        },
+      });
+      signOut();
+    } catch {
+      console.log("something went wrong");
+    }
+  };
   return (
     <View
       style={{

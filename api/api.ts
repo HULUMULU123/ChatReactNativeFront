@@ -7,4 +7,11 @@ const api = axios.create({
   },
 });
 
+export const apidFile = axios.create({
+  baseURL: "",
+  headers: {
+    "Content-Type": "multipart/form-data",
+  },
+});
+
 export default api;

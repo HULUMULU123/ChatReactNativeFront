@@ -1,8 +1,9 @@
+import useGlobal from "@/constants/global";
 import { useTheme } from "@/context/ThemeProvider";
 import { colorPalettes, themes } from "@/context/themes";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useNavigation } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -11,8 +12,14 @@ export default function CustomHeader({ route }) {
   const currentTheme = themes[theme];
   const currentColors = colorPalettes[colorPalette];
   const navigation = useNavigation();
-  const { username } = route.params;
 
+  const getAvatar = useGlobal((state) => state.getAvatar);
+  const avatarURI = useGlobal((state) => state.avatarUri);
+  const { username } = route.params;
+  console.log(route, "eoutic");
+  useEffect(() => {
+    getAvatar(username);
+  }, [route]);
   const styles = StyleSheet.create({
     headerContainer: {
       flexDirection: "row",
@@ -46,7 +53,9 @@ export default function CustomHeader({ route }) {
         <Text style={styles.backButton}>←</Text>
       </TouchableOpacity>
       <Image
-        source={require("@/assets/images/avatar.png")}
+        source={{
+          uri: `http://10.0.2.2:8000${avatarURI.thumbnail}`,
+        }}
         style={styles.avatar}
       />
       <Text style={styles.username}>{username}</Text>

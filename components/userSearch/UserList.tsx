@@ -1,5 +1,7 @@
 import { useSession } from "@/app/ctx";
 import useGlobal from "@/constants/global";
+import { useTheme } from "@/context/ThemeProvider";
+import { colorPalettes, themes } from "@/context/themes";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
@@ -26,6 +28,9 @@ export default function UserList({ users }: { users: Users }) {
   const json_session = JSON.parse(session || "");
   const user1 = json_session.user.username;
   const getChat = useGlobal((state) => state.getChat);
+  const { theme, colorPalette, toggleTheme, changeColorPalette } = useTheme();
+  const currentTheme = themes[theme];
+  const currentColors = colorPalettes[colorPalette];
   console.log(users, "users");
   function handleChat(user1: string, user2: string) {
     getChat(user1, user2);
@@ -41,12 +46,30 @@ export default function UserList({ users }: { users: Users }) {
           handleChat(user1, item.username);
         }}
       >
-        <View style={styles.userItem}>
+        <View
+          style={[
+            styles.userItem,
+            {
+              backgroundColor: currentTheme.blockBackground,
+              borderRadius: 10,
+              marginBottom: 3,
+              padding: 5,
+            },
+          ]}
+        >
           <Image
-            source={require("@/assets/images/avatar.png")}
+            source={{
+              uri: `http://10.0.2.2:8000${item.thumbnail}`,
+            }}
             style={{ width: 50, height: 50, borderRadius: 90 }}
           />
-          <Text style={[styles.userText, isLastItem && styles.lastItem]}>
+          <Text
+            style={[
+              styles.userText,
+              isLastItem && styles.lastItem,
+              { color: currentTheme.text },
+            ]}
+          >
             {item.username}
           </Text>
         </View>
@@ -72,7 +95,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
   userText: {
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
     paddingHorizontal: 10,
     paddingVertical: 20,
     width: "80%",
