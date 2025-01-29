@@ -25,7 +25,7 @@ import ModalAddFiles from "@/components/chat/ModalAddFiles";
 import AttachedFiles from "@/components/chat/AttachedFiles";
 
 import * as ImagePicker from "expo-image-picker";
-
+import React from "react";
 import FlashMessage from "react-native-flash-message";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system";
@@ -38,6 +38,7 @@ import { useTheme } from "@/context/ThemeProvider";
 import { colorPalettes, themes } from "@/context/themes";
 import { LinearGradient } from "expo-linear-gradient";
 import { BallIndicator } from "react-native-indicators";
+import MessageTime from "@/components/chat/MessageTime";
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
@@ -260,17 +261,21 @@ export default function ModalScreen() {
   }, [chat]);
 
   useEffect(() => {
-    if (commingMessage?.content) {
+    if (commingMessage?.content > 0 && encChatKey) {
       console.log("paral", commingMessage);
+      console.log("megafuckfuck", commingMessage?.content);
+      console.log("monke");
       // const modifiedData = getMessagesWithModifiedContent(
       //   encChatKey,
       //   commingMessage
       // );
       // console.log(modifiedData, "comming mod");
+      console.log(encChatKey, "test enckey");
       const newMessage = {
         id: Math.random(),
         content: decryptDataWithChatKey(encChatKey, commingMessage?.content),
         username: username,
+        created_at: commingMessage?.created_at,
       };
       // messages.push(newMessage);
       setMessages((prevMessages) => [...prevMessages, newMessage]);
@@ -281,7 +286,7 @@ export default function ModalScreen() {
 
   useEffect(() => {
     scrollViewRef.current?.scrollToEnd({ animated: false });
-    console.log(messages);
+    console.log(scrollViewRef.current, "suka");
   }, [messages]);
   const sendMessage = async () => {
     console.log("testing sendong message");
@@ -345,6 +350,7 @@ export default function ModalScreen() {
       content: message,
       file: uploadedFileUrl,
       username: json_session.user.username,
+      created_at: new Date(),
     };
     setMessage("");
     console.log("checkingpppp", newMessage);
@@ -395,25 +401,27 @@ export default function ModalScreen() {
     },
 
     friendMSG: {
-      width: "40%",
-
+      // minWidth: "40%",
+      maxWidth: "90%",
+      marginRight: "auto",
       backgroundColor: currentColors.messageColor,
       borderRadius: 20,
       borderBottomLeftRadius: 0,
       marginLeft: 5,
       marginVertical: 5,
       padding: 10,
+      flexShrink: 1,
     },
     myMSG: {
-      width: "40%",
+      // minWidth: "40%",
+      maxWidth: "90%", // Ограничиваем максимальную ширину
       marginLeft: "auto",
-      backgroundColor: currentColors.myMessageColor,
-      fontSize: 15,
       borderRadius: 20,
       borderBottomRightRadius: 0,
       marginRight: 5,
       marginVertical: 5,
       padding: 10,
+      flexShrink: 1,
     },
     msgAuthorFriend: {
       fontSize: 20,
@@ -423,11 +431,40 @@ export default function ModalScreen() {
     msgTextMe: {
       color: "#000",
       fontSize: 16,
+      minWidth: "10%",
+      maxWidth: "90%",
+      marginRight: 10,
     },
     msgTextFriend: {
+      backgroundColor: "transparent",
       fontSize: 16,
+      minWidth: "10%",
+      maxWidth: "90%",
+      marginRight: 10,
     },
   });
+  const formatDate = (date: string) => {
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    const parsedDate = new Date(date);
+    const day = parsedDate.getDate();
+    const month = parsedDate.getMonth(); // Месяц начинается с 0 (январь = 0)
+
+    return `${day} ${months[month]}`;
+  };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -438,51 +475,142 @@ export default function ModalScreen() {
           </View>
         ) : (
           <ScrollView ref={scrollViewRef} style={{ width: "100%" }}>
-            {messages.map((item) =>
-              item.username === json_session.user.username ? (
-                <View key={item.id} style={styles.myMSG}>
-                  {item.file && (
-                    // <Image
-                    //   source={{ uri: item.file }}
-                    //   height={200}
-                    //   width={200}
-                    //   style={{
-                    //     width: "100%",
-                    //     borderRadius: 10,
-                    //     resizeMode: "contain",
-                    //   }}
-                    // />
-                    <AttachedImage uri={item.file} />
+            {messages.map((item, index) => {
+              const formattedDate = formatDate(item.created_at);
+              // Проверяем, является ли дата текущего сообщения отличной от предыдущего
+              const isDifferentDate =
+                index === 0 ||
+                formatDate(messages[index - 1].created_at) !== formattedDate;
+
+              return (
+                <React.Fragment key={item.id}>
+                  {/* Если дата отличается, выводим блок с датой */}
+                  {isDifferentDate && (
+                    <View
+                      style={{
+                        backgroundColor: "transparent",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginVertical: 8,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          paddingVertical: 3,
+                          paddingHorizontal: 5,
+                          backgroundColor: currentColors.nameColor,
+                          color: "#fff",
+                          opacity: 0.8,
+                          borderRadius: 40,
+                        }}
+                      >
+                        {formattedDate}
+                      </Text>
+                    </View>
                   )}
 
-                  <Text style={styles.msgTextMe}>{item.content}</Text>
-                </View>
-              ) : (
-                <View key={item.id} style={styles.friendMSG}>
-                  <Text style={styles.msgTextFriend}>{item.content}</Text>
-                </View>
-              )
-            )}
+                  {/* Сообщение */}
+                  {item.username === json_session.user.username ? (
+                    <View
+                      style={[
+                        styles.myMSG,
+                        item.file && {
+                          width: "60%",
+                          padding: 0,
+                          margin: 0,
+                          overflow: "hidden",
+                        },
+                      ]}
+                    >
+                      {item.file && <AttachedImage uri={item.file} />}
+
+                      {item.content ? (
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            alignItems: "baseline",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <Text style={styles.msgTextMe}>{item.content}</Text>
+                          <MessageTime
+                            time={item.created_at}
+                            backgroundColor={"transparent"}
+                            textColor={currentTheme.infoText}
+                            position={""}
+                          />
+                        </View>
+                      ) : (
+                        <MessageTime
+                          time={item.created_at}
+                          backgroundColor={currentColors.nameColor}
+                          textColor={"#fff"}
+                          position={"absolute"}
+                        />
+                      )}
+                    </View>
+                  ) : (
+                    <View
+                      style={[
+                        styles.friendMSG,
+                        item.file && {
+                          width: "60%",
+                          padding: 0,
+                          margin: 0,
+                          overflow: "hidden",
+                        },
+                      ]}
+                    >
+                      {item.file && <AttachedImage uri={item.file} />}
+
+                      {item.content ? (
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            alignItems: "baseline",
+                            justifyContent: "space-between",
+                            backgroundColor: "transparent",
+                          }}
+                        >
+                          <Text style={styles.msgTextFriend}>
+                            {item.content}
+                          </Text>
+                          <MessageTime
+                            time={item.created_at}
+                            backgroundColor={"transparent"}
+                            textColor={currentTheme.infoText}
+                            position={""}
+                          />
+                        </View>
+                      ) : (
+                        <MessageTime
+                          time={item.created_at}
+                          backgroundColor={currentColors.nameColor}
+                          textColor={"#fff"}
+                          position={"absolute"}
+                        />
+                      )}
+                    </View>
+                  )}
+                </React.Fragment>
+              );
+            })}
           </ScrollView>
         )}
 
         <AttachedFiles />
         {/* {uploading && (
-          <View style={{ marginTop: 20 }}>
-            <Text>Uploading: {progress}%</Text>
-            <ProgressBarAndroid
-              styleAttr="Horizontal"
-              indeterminate={false}
-              progress={progress / 100}
-            />
-          </View>
-        )}
-        {uploadedFileUrl && (
-          <View style={{ marginTop: 20 }}>
-            <Text>File uploaded successfully!</Text>
-            <Text>File URL: {uploadedFileUrl}</Text>
-          </View>
-        )} */}
+      <View style={{ marginTop: 20 }}>
+        <Text>Uploading: {progress}%</Text>
+        <ProgressBarAndroid styleAttr="Horizontal" indeterminate={false} progress={progress / 100} />
+      </View>
+    )}
+    {uploadedFileUrl && (
+      <View style={{ marginTop: 20 }}>
+        <Text>File uploaded successfully!</Text>
+        <Text>File URL: {uploadedFileUrl}</Text>
+      </View>
+    )} */}
         <View style={styles.inputContiner}>
           <ModalAddFiles />
           <TextInput
@@ -500,5 +628,162 @@ export default function ModalScreen() {
         <FlashMessage position="top" />
       </LinearGradient>
     </TouchableWithoutFeedback>
+
+    // <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    //   <LinearGradient style={styles.container} colors={currentColors.gradient}>
+    //     {isLoading ? (
+    //       <View style={{ flex: 1, backgroundColor: "transparent" }}>
+    //         <BallIndicator color={currentColors.nameColor} size={80} />
+    //       </View>
+    //     ) : (
+    //       <ScrollView ref={scrollViewRef} style={{ width: "100%" }}>
+    //         {messages.map((item) =>
+    //           item.username === json_session.user.username ? (
+    //             <View
+    //               key={item.id}
+    //               style={[
+    //                 styles.myMSG,
+    //                 item.file && {
+    //                   width: "60%",
+    //                   padding: 0,
+    //                   margin: 0,
+    //                   overflow: "hidden",
+    //                 },
+    //               ]}
+    //             >
+    //               {item.file && (
+    //                 // <Image
+    //                 //   source={{ uri: item.file }}
+    //                 //   height={200}
+    //                 //   width={200}
+    //                 //   style={{
+    //                 //     width: "100%",
+    //                 //     borderRadius: 10,
+    //                 //     resizeMode: "contain",
+    //                 //   }}
+    //                 // />
+
+    //                 <AttachedImage uri={item.file} />
+    //               )}
+
+    //               {item.content ? (
+    //                 <View
+    //                   style={{
+    //                     flexDirection: "row",
+    //                     alignItems: "baseline",
+    //                     justifyContent: "space-between",
+    //                   }}
+    //                 >
+    //                   <Text style={styles.msgTextMe}>{item.content}</Text>
+    //                   <MessageTime
+    //                     time={item.created_at}
+    //                     backgroundColor={"transparent"}
+    //                     textColor={currentTheme.infoText}
+    //                     position={""}
+    //                   />
+    //                 </View>
+    //               ) : (
+    //                 <MessageTime
+    //                   time={item.created_at}
+    //                   backgroundColor={currentColors.nameColor}
+    //                   textColor={"#fff"}
+    //                   position={"absolute"}
+    //                 />
+    //               )}
+    //             </View>
+    //           ) : (
+    //             <View
+    //               key={item.id}
+    //               style={[
+    //                 styles.friendMSG,
+    //                 item.file && {
+    //                   width: "60%",
+    //                   padding: 0,
+    //                   margin: 0,
+    //                   overflow: "hidden",
+    //                 },
+    //               ]}
+    //             >
+    //               {/* <Text style={styles.msgTextFriend}>{item.content}</Text> */}
+    //               {item.file && (
+    //                 // <Image
+    //                 //   source={{ uri: item.file }}
+    //                 //   height={200}
+    //                 //   width={200}
+    //                 //   style={{
+    //                 //     width: "100%",
+    //                 //     borderRadius: 10,
+    //                 //     resizeMode: "contain",
+    //                 //   }}
+    //                 // />
+
+    //                 <AttachedImage uri={item.file} />
+    //               )}
+
+    //               {item.content ? (
+    //                 <View
+    //                   style={{
+    //                     flexDirection: "row",
+    //                     alignItems: "baseline",
+    //                     justifyContent: "space-between",
+    //                     backgroundColor: "transparent",
+    //                   }}
+    //                 >
+    //                   <Text style={styles.msgTextFriend}>{item.content}</Text>
+    //                   <MessageTime
+    //                     time={item.created_at}
+    //                     backgroundColor={"transparent"}
+    //                     textColor={currentTheme.infoText}
+    //                     position={""}
+    //                   />
+    //                 </View>
+    //               ) : (
+    //                 <MessageTime
+    //                   time={item.created_at}
+    //                   backgroundColor={currentColors.nameColor}
+    //                   textColor={"#fff"}
+    //                   position={"absolute"}
+    //                 />
+    //               )}
+    //             </View>
+    //           )
+    //         )}
+    //       </ScrollView>
+    //     )}
+
+    //     <AttachedFiles />
+    //     {/* {uploading && (
+    //       <View style={{ marginTop: 20 }}>
+    //         <Text>Uploading: {progress}%</Text>
+    //         <ProgressBarAndroid
+    //           styleAttr="Horizontal"
+    //           indeterminate={false}
+    //           progress={progress / 100}
+    //         />
+    //       </View>
+    //     )}
+    //     {uploadedFileUrl && (
+    //       <View style={{ marginTop: 20 }}>
+    //         <Text>File uploaded successfully!</Text>
+    //         <Text>File URL: {uploadedFileUrl}</Text>
+    //       </View>
+    //     )} */}
+    //     <View style={styles.inputContiner}>
+    //       <ModalAddFiles />
+    //       <TextInput
+    //         style={styles.textInput}
+    //         multiline
+    //         scrollEnabled
+    //         placeholder="Message"
+    //         value={message}
+    //         onChangeText={(text) => setMessage(text)}
+    //       />
+    //       <TouchableWithoutFeedback onPress={() => sendMessage()}>
+    //         <FontAwesome name="send" size={25} color={currentTheme.infoText} />
+    //       </TouchableWithoutFeedback>
+    //     </View>
+    //     <FlashMessage position="top" />
+    //   </LinearGradient>
+    // </TouchableWithoutFeedback>
   );
 }

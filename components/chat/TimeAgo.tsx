@@ -45,7 +45,7 @@ function TimeAgo({ timestamp, color }) {
     <View
       style={{ alignSelf: "flex-start", marginLeft: "auto", marginRight: 20 }}
     >
-      <Text style={{ color: color }}>{timeAgo}</Text>
+      <Text style={{ color: color, fontSize: 11 }}>{timeAgo}</Text>
     </View>
   );
 }

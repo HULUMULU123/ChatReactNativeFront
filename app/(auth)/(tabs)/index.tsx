@@ -160,9 +160,8 @@ export default function TabOneScreen() {
                     styles.chatItem,
                     {
                       backgroundColor: currentTheme.blockBackground,
-                      borderRadius: 10,
+
                       padding: 10,
-                      borderColor: currentTheme.brand,
                     },
                   ]}
                 >
@@ -203,10 +202,17 @@ export default function TabOneScreen() {
                     </View>
                   </View>
                   <TimeAgo
-                    color={currentTheme.text}
+                    color={currentTheme.infoText}
                     timestamp={chat?.created_at}
                   />
                 </View>
+                <View
+                  style={{
+                    width: "30%",
+                    height: 1,
+                    backgroundColor: currentTheme.background,
+                  }}
+                ></View>
               </TouchableOpacity>
             ))
           ) : (
@@ -242,7 +248,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   separator: {
-    marginVertical: 30,
+    marginVertical: 0,
     height: 1,
     width: "80%",
   },
@@ -255,10 +261,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
 
-    marginVertical: 5,
-    marginLeft: 10,
+    marginLeft: 0,
     marginRight: 10,
-    borderBottomWidth: 1,
+
     paddingBottom: 10,
   },
   msgInformation: {

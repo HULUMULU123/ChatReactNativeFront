@@ -75,6 +75,7 @@ const useGlobal = create<GlobalState>((set, get) => ({
         }, 2000);
       }
       if (parsed.source == "chat_message") {
+        console.log(parsed.data);
         set((state) => ({
           message: parsed.data,
         }));

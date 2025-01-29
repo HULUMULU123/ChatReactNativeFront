@@ -9,11 +9,11 @@ export default function AttachedImage({ uri }: { uri: string }) {
       <TouchableOpacity onPress={() => setIsVisible(true)}>
         <Image
           source={{ uri: uri }}
-          height={200}
-          width={200}
+          height={330}
+          width={330}
           style={{
             width: "100%",
-            borderRadius: 10,
+
             resizeMode: "contain",
           }}
         />
