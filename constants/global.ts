@@ -75,15 +75,15 @@ const useGlobal = create<GlobalState>((set, get) => ({
         }, 2000);
       }
       if (parsed.source == "chat_message") {
-        console.log(parsed.data);
+        console.log("chat_monke", parsed.data);
         set((state) => ({
           message: parsed.data,
         }));
-        socket.send(
-          JSON.stringify({
-            source: "index",
-          })
-        );
+        // socket.send(
+        //   JSON.stringify({
+        //     source: "index",
+        //   })
+        // );
       }
       if (parsed.source == "get_all_chats") {
         console.log("allchats", parsed.data);
@@ -155,7 +155,7 @@ const useGlobal = create<GlobalState>((set, get) => ({
 
   message: null,
 
-  sendMessage: (msg: any, from: string, to: string) => {
+  sendMessage: (msg: any, from: string, to: string, reply: string) => {
     if (msg) {
       const socket = get().socket;
       socket.send(
@@ -164,6 +164,7 @@ const useGlobal = create<GlobalState>((set, get) => ({
           from,
           to,
           msg,
+          reply,
         })
       );
     }

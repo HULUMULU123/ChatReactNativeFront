@@ -58,6 +58,8 @@
     "react-native-screens": "~3.29.0",
     "react-native-spinkit": "^1.5.1",
     "react-native-web": "~0.19.6",
+    "react-native-webrtc": "^124.0.5",
+    "react-native-webview": "^13.13.2",
     "zustand": "^5.0.1"
   },
   "devDependencies": {

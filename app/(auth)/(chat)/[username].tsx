@@ -10,6 +10,7 @@ import {
   TextInput,
   TouchableWithoutFeedback,
   I,
+  Pressable,
 } from "react-native";
 
 import EditScreenInfo from "@/components/EditScreenInfo";
@@ -39,6 +40,10 @@ import { colorPalettes, themes } from "@/context/themes";
 import { LinearGradient } from "expo-linear-gradient";
 import { BallIndicator } from "react-native-indicators";
 import MessageTime from "@/components/chat/MessageTime";
+import Reactions from "@/components/chat/Reactions";
+import MyMessage from "@/components/chat/MyMessage";
+import FriendMessage from "@/components/chat/FriendMessage";
+import ReplyMessage from "@/components/chat/ReplyMessage";
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
@@ -83,6 +88,9 @@ export default function ModalScreen() {
   const { theme, colorPalette, toggleTheme, changeColorPalette } = useTheme();
   const currentTheme = themes[theme];
   const currentColors = colorPalettes[colorPalette];
+
+  const [showReactions, setShowReactions] = useState(false);
+  const [replyMessage, setReplyMessage] = useState("");
 
   const renderMSG = ({ item }) => {
     const username =
@@ -261,10 +269,11 @@ export default function ModalScreen() {
   }, [chat]);
 
   useEffect(() => {
-    if (commingMessage?.content > 0 && encChatKey) {
+    console.log("monke_key", commingMessage?.content, encChatKey);
+    if (commingMessage?.content && encChatKey) {
       console.log("paral", commingMessage);
       console.log("megafuckfuck", commingMessage?.content);
-      console.log("monke");
+      console.log("monke", commingMessage?.reply);
       // const modifiedData = getMessagesWithModifiedContent(
       //   encChatKey,
       //   commingMessage
@@ -276,6 +285,7 @@ export default function ModalScreen() {
         content: decryptDataWithChatKey(encChatKey, commingMessage?.content),
         username: username,
         created_at: commingMessage?.created_at,
+        reply: commingMessage?.reply,
       };
       // messages.push(newMessage);
       setMessages((prevMessages) => [...prevMessages, newMessage]);
@@ -340,6 +350,7 @@ export default function ModalScreen() {
       const messageContent = {
         text: encryptedData,
         file: "",
+        reply: replyMessage,
       };
       sendMessageG(messageContent, json_session.user.username, username);
       console.log(messageContent);
@@ -351,12 +362,15 @@ export default function ModalScreen() {
       file: uploadedFileUrl,
       username: json_session.user.username,
       created_at: new Date(),
+      reply: replyMessage,
+      emoji: [{}],
     };
     setMessage("");
     console.log("checkingpppp", newMessage);
     // messages.push(newMessage);
     setMessages((prevMessages) => [...prevMessages, newMessage]);
     getAllChats();
+    setReplyMessage("");
   };
 
   const styles = StyleSheet.create({
@@ -422,6 +436,8 @@ export default function ModalScreen() {
       marginVertical: 5,
       padding: 10,
       flexShrink: 1,
+      backgroundColor: currentColors.myMessageColor,
+      position: "relative",
     },
     msgAuthorFriend: {
       fontSize: 20,
@@ -511,86 +527,27 @@ export default function ModalScreen() {
 
                   {/* Сообщение */}
                   {item.username === json_session.user.username ? (
-                    <View
-                      style={[
-                        styles.myMSG,
-                        item.file && {
-                          width: "60%",
-                          padding: 0,
-                          margin: 0,
-                          overflow: "hidden",
-                        },
-                      ]}
-                    >
-                      {item.file && <AttachedImage uri={item.file} />}
-
-                      {item.content ? (
-                        <View
-                          style={{
-                            flexDirection: "row",
-                            alignItems: "baseline",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <Text style={styles.msgTextMe}>{item.content}</Text>
-                          <MessageTime
-                            time={item.created_at}
-                            backgroundColor={"transparent"}
-                            textColor={currentTheme.infoText}
-                            position={""}
-                          />
-                        </View>
-                      ) : (
-                        <MessageTime
-                          time={item.created_at}
-                          backgroundColor={currentColors.nameColor}
-                          textColor={"#fff"}
-                          position={"absolute"}
-                        />
-                      )}
-                    </View>
+                    <MyMessage
+                      styles={styles}
+                      currentColors={currentColors}
+                      currentTheme={currentTheme}
+                      item={item}
+                      setReplyMessage={setReplyMessage}
+                      emoji={item.reactions}
+                      username={json_session.user.username}
+                      reply={messages.find((msg) => msg.id == item.reply)}
+                    />
                   ) : (
-                    <View
-                      style={[
-                        styles.friendMSG,
-                        item.file && {
-                          width: "60%",
-                          padding: 0,
-                          margin: 0,
-                          overflow: "hidden",
-                        },
-                      ]}
-                    >
-                      {item.file && <AttachedImage uri={item.file} />}
-
-                      {item.content ? (
-                        <View
-                          style={{
-                            flexDirection: "row",
-                            alignItems: "baseline",
-                            justifyContent: "space-between",
-                            backgroundColor: "transparent",
-                          }}
-                        >
-                          <Text style={styles.msgTextFriend}>
-                            {item.content}
-                          </Text>
-                          <MessageTime
-                            time={item.created_at}
-                            backgroundColor={"transparent"}
-                            textColor={currentTheme.infoText}
-                            position={""}
-                          />
-                        </View>
-                      ) : (
-                        <MessageTime
-                          time={item.created_at}
-                          backgroundColor={currentColors.nameColor}
-                          textColor={"#fff"}
-                          position={"absolute"}
-                        />
-                      )}
-                    </View>
+                    <FriendMessage
+                      styles={styles}
+                      currentColors={currentColors}
+                      currentTheme={currentTheme}
+                      item={item}
+                      setReplyMessage={setReplyMessage}
+                      emoji={item.reactions}
+                      username={item.username}
+                      reply={messages.find((msg) => msg.id == item.reply)}
+                    />
                   )}
                 </React.Fragment>
               );
@@ -599,6 +556,14 @@ export default function ModalScreen() {
         )}
 
         <AttachedFiles />
+        {replyMessage && (
+          <ReplyMessage
+            currentColors={currentColors}
+            currentTheme={currentTheme}
+            item={messages.find((msg) => msg.id == replyMessage)}
+            setReplyMessage={setReplyMessage}
+          />
+        )}
         {/* {uploading && (
       <View style={{ marginTop: 20 }}>
         <Text>Uploading: {progress}%</Text>
@@ -613,6 +578,7 @@ export default function ModalScreen() {
     )} */}
         <View style={styles.inputContiner}>
           <ModalAddFiles />
+
           <TextInput
             style={styles.textInput}
             multiline
@@ -628,162 +594,5 @@ export default function ModalScreen() {
         <FlashMessage position="top" />
       </LinearGradient>
     </TouchableWithoutFeedback>
-
-    // <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-    //   <LinearGradient style={styles.container} colors={currentColors.gradient}>
-    //     {isLoading ? (
-    //       <View style={{ flex: 1, backgroundColor: "transparent" }}>
-    //         <BallIndicator color={currentColors.nameColor} size={80} />
-    //       </View>
-    //     ) : (
-    //       <ScrollView ref={scrollViewRef} style={{ width: "100%" }}>
-    //         {messages.map((item) =>
-    //           item.username === json_session.user.username ? (
-    //             <View
-    //               key={item.id}
-    //               style={[
-    //                 styles.myMSG,
-    //                 item.file && {
-    //                   width: "60%",
-    //                   padding: 0,
-    //                   margin: 0,
-    //                   overflow: "hidden",
-    //                 },
-    //               ]}
-    //             >
-    //               {item.file && (
-    //                 // <Image
-    //                 //   source={{ uri: item.file }}
-    //                 //   height={200}
-    //                 //   width={200}
-    //                 //   style={{
-    //                 //     width: "100%",
-    //                 //     borderRadius: 10,
-    //                 //     resizeMode: "contain",
-    //                 //   }}
-    //                 // />
-
-    //                 <AttachedImage uri={item.file} />
-    //               )}
-
-    //               {item.content ? (
-    //                 <View
-    //                   style={{
-    //                     flexDirection: "row",
-    //                     alignItems: "baseline",
-    //                     justifyContent: "space-between",
-    //                   }}
-    //                 >
-    //                   <Text style={styles.msgTextMe}>{item.content}</Text>
-    //                   <MessageTime
-    //                     time={item.created_at}
-    //                     backgroundColor={"transparent"}
-    //                     textColor={currentTheme.infoText}
-    //                     position={""}
-    //                   />
-    //                 </View>
-    //               ) : (
-    //                 <MessageTime
-    //                   time={item.created_at}
-    //                   backgroundColor={currentColors.nameColor}
-    //                   textColor={"#fff"}
-    //                   position={"absolute"}
-    //                 />
-    //               )}
-    //             </View>
-    //           ) : (
-    //             <View
-    //               key={item.id}
-    //               style={[
-    //                 styles.friendMSG,
-    //                 item.file && {
-    //                   width: "60%",
-    //                   padding: 0,
-    //                   margin: 0,
-    //                   overflow: "hidden",
-    //                 },
-    //               ]}
-    //             >
-    //               {/* <Text style={styles.msgTextFriend}>{item.content}</Text> */}
-    //               {item.file && (
-    //                 // <Image
-    //                 //   source={{ uri: item.file }}
-    //                 //   height={200}
-    //                 //   width={200}
-    //                 //   style={{
-    //                 //     width: "100%",
-    //                 //     borderRadius: 10,
-    //                 //     resizeMode: "contain",
-    //                 //   }}
-    //                 // />
-
-    //                 <AttachedImage uri={item.file} />
-    //               )}
-
-    //               {item.content ? (
-    //                 <View
-    //                   style={{
-    //                     flexDirection: "row",
-    //                     alignItems: "baseline",
-    //                     justifyContent: "space-between",
-    //                     backgroundColor: "transparent",
-    //                   }}
-    //                 >
-    //                   <Text style={styles.msgTextFriend}>{item.content}</Text>
-    //                   <MessageTime
-    //                     time={item.created_at}
-    //                     backgroundColor={"transparent"}
-    //                     textColor={currentTheme.infoText}
-    //                     position={""}
-    //                   />
-    //                 </View>
-    //               ) : (
-    //                 <MessageTime
-    //                   time={item.created_at}
-    //                   backgroundColor={currentColors.nameColor}
-    //                   textColor={"#fff"}
-    //                   position={"absolute"}
-    //                 />
-    //               )}
-    //             </View>
-    //           )
-    //         )}
-    //       </ScrollView>
-    //     )}
-
-    //     <AttachedFiles />
-    //     {/* {uploading && (
-    //       <View style={{ marginTop: 20 }}>
-    //         <Text>Uploading: {progress}%</Text>
-    //         <ProgressBarAndroid
-    //           styleAttr="Horizontal"
-    //           indeterminate={false}
-    //           progress={progress / 100}
-    //         />
-    //       </View>
-    //     )}
-    //     {uploadedFileUrl && (
-    //       <View style={{ marginTop: 20 }}>
-    //         <Text>File uploaded successfully!</Text>
-    //         <Text>File URL: {uploadedFileUrl}</Text>
-    //       </View>
-    //     )} */}
-    //     <View style={styles.inputContiner}>
-    //       <ModalAddFiles />
-    //       <TextInput
-    //         style={styles.textInput}
-    //         multiline
-    //         scrollEnabled
-    //         placeholder="Message"
-    //         value={message}
-    //         onChangeText={(text) => setMessage(text)}
-    //       />
-    //       <TouchableWithoutFeedback onPress={() => sendMessage()}>
-    //         <FontAwesome name="send" size={25} color={currentTheme.infoText} />
-    //       </TouchableWithoutFeedback>
-    //     </View>
-    //     <FlashMessage position="top" />
-    //   </LinearGradient>
-    // </TouchableWithoutFeedback>
   );
 }
