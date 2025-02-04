@@ -31,7 +31,13 @@ type GlobalState = {
   getFileUris: (chat: string) => void;
   deleteFileUri: (index: number, chat: any) => void;
   getAvatar: (username: string) => void;
+  getGroupAvatar: (name: string) => void;
   avatarUri: string;
+  allGroups: any;
+  getAllGroups: () => void;
+  createGroup: (groupName: string, members: []) => void;
+  group: any;
+  getGroup: (name: string) => void;
 };
 
 const useGlobal = create<GlobalState>((set, get) => ({
@@ -94,6 +100,19 @@ const useGlobal = create<GlobalState>((set, get) => ({
       if (parsed.source == "get_avatar") {
         set((state) => ({
           avatarUri: parsed.data,
+        }));
+      }
+      if (parsed.source == "get_all_groups") {
+        console.log("allGroups", parsed.data);
+        set((state) => ({
+          allGroups: parsed.data,
+        }));
+      }
+
+      if (parsed.source == "get_group") {
+        console.log("got group");
+        set((state) => ({
+          group: parsed.data,
         }));
       }
       // const responses = {
@@ -245,6 +264,45 @@ const useGlobal = create<GlobalState>((set, get) => ({
       JSON.stringify({
         source: "avatar",
         username: username,
+      })
+    );
+  },
+  getGroupAvatar: (name) => {
+    const socket = get().socket;
+    console.log(name);
+    socket.send(
+      JSON.stringify({
+        source: "group_avatar",
+        name: name,
+      })
+    );
+  },
+  allGroups: null,
+  getAllGroups: () => {
+    const socket = get().socket;
+    socket.send(
+      JSON.stringify({
+        source: "all_groups",
+      })
+    );
+  },
+  createGroup: (groupName, members) => {
+    const socket = get().socket;
+    socket.send(
+      JSON.stringify({
+        source: "create_group",
+        group_name: groupName,
+        members: members,
+      })
+    );
+  },
+  group: null,
+  getGroup: (name) => {
+    const socket = get().socket;
+    socket.send(
+      JSON.stringify({
+        source: "get_group",
+        name,
       })
     );
   },

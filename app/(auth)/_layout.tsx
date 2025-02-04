@@ -5,6 +5,7 @@ import { Text } from "@/components/Themed";
 import CustomHeader from "@/components/chat/CustomHeader";
 import { useTheme } from "@/context/ThemeProvider";
 import { themes } from "@/context/themes";
+import CustomHeaderGroup from "@/components/chat/CustomHeaderGroup";
 
 export default function AppLayout() {
   const { session, isLoading } = useSession();
@@ -46,6 +47,13 @@ export default function AppLayout() {
         options={{
           presentation: "fullScreenModal",
           header: ({ route }) => <CustomHeader route={route} />,
+        }}
+      />
+      <Stack.Screen
+        name="(group)/[name]"
+        options={{
+          presentation: "fullScreenModal",
+          header: ({ route }) => <CustomHeaderGroup route={route} />,
         }}
       />
     </Stack>

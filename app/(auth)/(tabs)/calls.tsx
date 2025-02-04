@@ -3,18 +3,13 @@ import { StyleSheet } from "react-native";
 import EditScreenInfo from "@/components/EditScreenInfo";
 import { Text, View } from "@/components/Themed";
 import CallScreen from "@/components/calls/CallScreen";
+import CallScreenDemo from "@/components/calls/CallScreenDemo";
 
 export default function TabCallsScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tab Two</Text>
-      <View
-        style={styles.separator}
-        lightColor="#eee"
-        darkColor="rgba(255,255,255,0.1)"
-      />
-      <CallScreen roomName={"rfef499f30"} />
-      <EditScreenInfo path="app/(auth)/(tabs)/calls.tsx" />
+      <CallScreenDemo />
+      {/* <CallScreen roomName={"rfef499f30"} /> */}
     </View>
   );
 }
